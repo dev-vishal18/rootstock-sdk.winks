@@ -116,37 +116,13 @@ interface MetaData {
 }
 ```
 
-### RPC Manager
-
-```ts
-import { RpcManager } from 'rootstockwinks';
-
-const rpc = new RpcManager();
-const provider = rpc.createProvider('mainnet'); // or 'testnet'
-const bestUrl = rpc.getBestRpcUrl('mainnet');
-// Health snapshot
-const health = rpc.getHealth('mainnet');
-```
-
-* Periodic health checks (eth\_blockNumber) with timeouts
-* Chooses lowest-latency healthy endpoint; fails over automatically
-
-### EIP-1193 Provider Adapter
-
-```ts
-import { Eip1193Provider } from 'rootstockwinks';
-
-const eip = new Eip1193Provider(window.ethereum);
-await eip.request({ method: 'eth_requestAccounts' });
-```
-
-### Signature Manager (Queued)
+### Signature Manager&#x20;
 
 ```ts
 import { SignatureManager, Eip1193Provider } from 'rootstockwinks';
 
 const sm = new SignatureManager(new Eip1193Provider(window.ethereum));
-// Requests are queued to avoid multiple wallet prompts
+
 await sm.requestTransactionSignature({ to: '0x...', value: 0n });
 await sm.requestMessageSignature('Hello Rootstock');
 await sm.requestPersonalSignature('Personal message');
