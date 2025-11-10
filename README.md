@@ -15,7 +15,7 @@ A React/Next.js SDK for building on Rootstock with wallet integration, token/NFT
 * ✍️ Signature management (tx/message/personal/typed data)
 * 🔄 Network switching helpers
 * 🧭 RPC Management with health checks and latency-based selection
-* 🧩 EIP-1193 Provider adapter (MetaMask et al.)
+* 🧩 EIP-1193 Provider adapter
 * 🧯 Signature queueing to avoid overlapping prompts
 * 🛠️ Dual builds (Rollup + Vite) outputting CJS + ESM
 * ✅ Testing setup (Jest unit, Playwright E2E)
@@ -41,14 +41,9 @@ export default function App({ Component, pageProps }) {
 }
 ```
 
-Start the local metadata server and create an API key:
+Create an API key:
 
 ```bash
-cd server
-npm install
-npm run build
-npm start
-
 # Create API Key
 curl -X POST http://winksserver.winks.fun/api/keys \
   -H "Content-Type: application/json" \
@@ -116,127 +111,14 @@ interface MetaData {
 }
 ```
 
-### Signature Manager&#x20;
 
-```ts
-import { SignatureManager, Eip1193Provider } from 'rootstockwinks';
-
-const sm = new SignatureManager(new Eip1193Provider(window.ethereum));
-
-await sm.requestTransactionSignature({ to: '0x...', value: 0n });
-await sm.requestMessageSignature('Hello Rootstock');
-await sm.requestPersonalSignature('Personal message');
-await sm.requestTypedDataSignature({ domain, types, value });
-```
-
-### Wallet Integration (RainbowKit + wagmi)
-
-Wrap your app:
-
-```jsx
-import { WalletProvider } from 'rootstockwinks';
-
-export default function App({ Component, pageProps }) {
-  return (
-    <WalletProvider>
-      <Component {...pageProps} />
-    </WalletProvider>
-  );
-}
-```
-
-Use the connection UI:
-
-```jsx
-import { WalletConnection } from 'rootstockwinks';
-
-function MyComponent() {
-  return <WalletConnection showBalance showNetwork />;
-}
-```
-
-Advanced hook:
-
-```jsx
-import { useWalletIntegration } from 'rootstockwinks';
-
-const {
-  walletState,
-  connectWallet,
-  disconnectWallet,
-  switchToRootstockMainnet,
-  switchToRootstockTestnet,
-  requestTransactionSignature,
-  requestMessageSignature,
-  requestPersonalSignature,
-  requestTypedDataSignature,
-  sendTransaction,
-} = useWalletIntegration();
-```
-
-* `sendTransaction(to, value)` now powers the example app’s “Send tRBTC” flow and sends native tRBTC on Rootstock Testnet.
-
-Send native tRBTC:
-
-```ts
-const result = await sendTransaction('0xRecipient', '0.05');
-if (result.success) {
-  console.log('tx hash', result.txHash);
-} else {
-  console.error(result.error);
-}
-```
-
-### Enhanced Token Transfer Hook
-
-```tsx
-import { useEnhancedTokenTransfer } from 'rootstockwinks';
-
-const {
-  transferERC20,
-  transferNFT,
-  approveToken,
-  getTokenBalance,
-  getNFTOwner,
-  getTokenAllowance,
-  ensureRootstockNetwork,
-  address,
-  isConnected,
-} = useEnhancedTokenTransfer();
-```
-
-* Use this hook for ERC-20/ERC-721/ERC-1155 contracts. For native tRBTC, prefer `useWalletIntegration().sendTransaction`.
-
-### Simple Token/NFT Functions
-
-```ts
-import {
-  transferERC20,
-  approveToken,
-  getTokenBalance,
-  getTokenAllowance,
-  getNFTOwner,
-  transferNFT,
-} from 'rootstockwinks';
-import { ethers } from 'ethers';
-
-const provider = new ethers.BrowserProvider(window.ethereum);
-const signer = await provider.getSigner();
-
-await transferERC20('0xToken', '0xRecipient', '1.0', signer);
-await approveToken('0xToken', '0xSpender', '100.0', signer);
-const bal = await getTokenBalance('0xToken', '0xAccount', provider);
-const allowance = await getTokenAllowance('0xToken', '0xOwner', '0xSpender', provider);
-const owner = await getNFTOwner('0xNft', '123', provider);
-await transferNFT('0xNft', '0xFrom', '0xTo', '123', signer);
-```
 
 ### Network Configuration
 
 * Rootstock Mainnet: Chain ID 30, RPC `https://public-node.rsk.co`, Explorer `https://explorer.rootstock.io`, Currency RBTC
 * Rootstock Testnet: Chain ID 31, RPC `https://public-node.testnet.rsk.co`, Explorer `https://explorer.testnet.rootstock.io`, Currency tRBTC
 
-## Server API (local metadata server)
+## Server API&#x20;
 
 * `GET /health`
 * `POST /api/keys` → `{ id, key, name, createdAt, isActive }`
