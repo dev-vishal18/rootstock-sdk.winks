@@ -1,24 +1,24 @@
-# Winks SDK (Rootstock)
+# Winks SDK (rootstock)
 
-A React/Next.js SDK that automatically populates SEO meta tags from a secure API and provides Rootstock-ready wallet integration, token/NFT utilities, signature management, and RPC failover.
+A React/Next.js SDK for building on Rootstock with wallet integration, token/NFT utilities, signature management, and RPC Management
 
 ## Features
 
-- 🚀 Easy Integration: drop-in `Winks` wrapper for Next.js
-- 🔑 API-keyed metadata management (server included)
-- 📱 Social meta: Open Graph, Twitter Cards
-- 🎯 Full SEO meta coverage
-- 💰 Token utilities: ERC-20 transfer/approve/balance/allowance
-- 🎨 NFT utilities: ERC-721 owner, ERC-721/1155 transfers, ERC-1155 balance
-- 🔗 Rootstock ready (Testnet 31) — SDK defaults to Testnet in the example app
-- 🌐 Wallet integration via RainbowKit + WalletConnect (styles auto-injected)
-- ✍️ Signature management (tx/message/personal/typed data)
-- 🔄 Network switching helpers
-- 🧭 RPC Management with health checks and latency-based selection
-- 🧩 EIP-1193 Provider adapter (MetaMask et al.)
-- 🧯 Signature queueing to avoid overlapping prompts
-- 🛠️ Dual builds (Rollup + Vite) outputting CJS + ESM
-- ✅ Testing setup (Jest unit, Playwright E2E)
+* 🚀 Easy Integration: drop-in `Winks` wrapper for Next.js
+* 🔑 API-keyed metadata management (server included)
+* 📱 Social meta: Open Graph, Twitter Cards
+* 🎯 Full SEO meta coverage
+* 💰 Token utilities: ERC-20 transfer/approve/balance/allowance
+* 🎨 NFT utilities: ERC-721 owner, ERC-721/1155 transfers, ERC-1155 balance
+* 🔗 Rootstock ready (Testnet 31) — SDK defaults to Testnet in the example app
+* 🌐 Wallet integration via RainbowKit + WalletConnect (styles auto-injected)
+* ✍️ Signature management (tx/message/personal/typed data)
+* 🔄 Network switching helpers
+* 🧭 RPC Management with health checks and latency-based selection
+* 🧩 EIP-1193 Provider adapter (MetaMask et al.)
+* 🧯 Signature queueing to avoid overlapping prompts
+* 🛠️ Dual builds (Rollup + Vite) outputting CJS + ESM
+* ✅ Testing setup (Jest unit, Playwright E2E)
 
 ## Installation
 
@@ -50,12 +50,12 @@ npm run build
 npm start
 
 # Create API Key
-curl -X POST http://localhost:3001/api/keys \
+curl -X POST http://winksserver.winks.fun/api/keys \
   -H "Content-Type: application/json" \
   -d '{"name": "My Website"}'
 
 # Set metadata
-curl -X POST http://localhost:3001/api/meta/YOUR_API_KEY \
+curl -X POST http://winksserver.winks.fun/api/meta/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -H "X-API-Key: YOUR_API_KEY" \
   -d '{
@@ -88,11 +88,13 @@ NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=YOUR_PROJECT_ID
 ### Winks Component
 
 Props:
-- `apikey: string` required
-- `children: ReactNode` required
-- `fallback?: MetaData` (used if server fetch fails)
+
+* `apikey: string` required
+* `children: ReactNode` required
+* `fallback?: MetaData` (used if server fetch fails)
 
 `MetaData` shape:
+
 ```ts
 interface MetaData {
   title?: string;
@@ -125,8 +127,9 @@ const bestUrl = rpc.getBestRpcUrl('mainnet');
 // Health snapshot
 const health = rpc.getHealth('mainnet');
 ```
-- Periodic health checks (eth_blockNumber) with timeouts
-- Chooses lowest-latency healthy endpoint; fails over automatically
+
+* Periodic health checks (eth\_blockNumber) with timeouts
+* Chooses lowest-latency healthy endpoint; fails over automatically
 
 ### EIP-1193 Provider Adapter
 
@@ -153,6 +156,7 @@ await sm.requestTypedDataSignature({ domain, types, value });
 ### Wallet Integration (RainbowKit + wagmi)
 
 Wrap your app:
+
 ```jsx
 import { WalletProvider } from 'rootstockwinks';
 
@@ -166,6 +170,7 @@ export default function App({ Component, pageProps }) {
 ```
 
 Use the connection UI:
+
 ```jsx
 import { WalletConnection } from 'rootstockwinks';
 
@@ -175,6 +180,7 @@ function MyComponent() {
 ```
 
 Advanced hook:
+
 ```jsx
 import { useWalletIntegration } from 'rootstockwinks';
 
@@ -192,7 +198,7 @@ const {
 } = useWalletIntegration();
 ```
 
-- `sendTransaction(to, value)` now powers the example app’s “Send tRBTC” flow and sends native tRBTC on Rootstock Testnet.
+* `sendTransaction(to, value)` now powers the example app’s “Send tRBTC” flow and sends native tRBTC on Rootstock Testnet.
 
 Send native tRBTC:
 
@@ -222,7 +228,8 @@ const {
   isConnected,
 } = useEnhancedTokenTransfer();
 ```
-- Use this hook for ERC-20/ERC-721/ERC-1155 contracts. For native tRBTC, prefer `useWalletIntegration().sendTransaction`.
+
+* Use this hook for ERC-20/ERC-721/ERC-1155 contracts. For native tRBTC, prefer `useWalletIntegration().sendTransaction`.
 
 ### Simple Token/NFT Functions
 
@@ -250,31 +257,33 @@ await transferNFT('0xNft', '0xFrom', '0xTo', '123', signer);
 
 ### Network Configuration
 
-- Rootstock Mainnet: Chain ID 30, RPC `https://public-node.rsk.co`, Explorer `https://explorer.rootstock.io`, Currency RBTC
-- Rootstock Testnet: Chain ID 31, RPC `https://public-node.testnet.rsk.co`, Explorer `https://explorer.testnet.rootstock.io`, Currency tRBTC
+* Rootstock Mainnet: Chain ID 30, RPC `https://public-node.rsk.co`, Explorer `https://explorer.rootstock.io`, Currency RBTC
+* Rootstock Testnet: Chain ID 31, RPC `https://public-node.testnet.rsk.co`, Explorer `https://explorer.testnet.rootstock.io`, Currency tRBTC
 
 ## Server API (local metadata server)
 
-- `GET /health`
-- `POST /api/keys` → `{ id, key, name, createdAt, isActive }`
-- `GET /api/keys` (auth)
-- `DELETE /api/keys/:key` (auth)
-- `GET /api/meta/:apiKey` → returns `MetaData`
-- `POST /api/meta/:apiKey` (auth) `{ metadata: MetaData }`
-- `PUT /api/meta/:apiKey` (auth) `{ metadata: MetaData }`
-- `DELETE /api/meta/:apiKey` (auth)
+* `GET /health`
+* `POST /api/keys` → `{ id, key, name, createdAt, isActive }`
+* `GET /api/keys` (auth)
+* `DELETE /api/keys/:key` (auth)
+* `GET /api/meta/:apiKey` → returns `MetaData`
+* `POST /api/meta/:apiKey` (auth) `{ metadata: MetaData }`
+* `PUT /api/meta/:apiKey` (auth) `{ metadata: MetaData }`
+* `DELETE /api/meta/:apiKey` (auth)
 
 Auth header: `X-API-Key: {apiKey}`
 
 ## Development
 
 ### Build
+
 ```bash
 npm run build           # TypeScript + Rollup (CJS + ESM)
 npm run build:vite      # Vite library build (optional)
 ```
 
 ### Testing
+
 ```bash
 npm test                # Jest unit tests
 npx playwright install chromium
